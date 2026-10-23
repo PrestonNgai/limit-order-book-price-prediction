@@ -1,0 +1,11 @@
+model: ridge
+horizon_ms: 500
+seed: 42
+ridge_alpha: 1.0
+rounds: 200
+max_depth: 3
+learning_rate: 0.05
+patience: 15
+batch_rows: 4096
+max_rows: 250000
+max_fit_mb: 512

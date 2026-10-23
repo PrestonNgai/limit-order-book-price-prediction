@@ -123,7 +123,11 @@ sessions is still an assumption. Paired accuracy differences require identical r
 These intervals would remain exploratory after validation checkpoint selection;
 they do not correct for repeated model comparisons.
 
-Research uses validation only. The original TEST partition has stayed sealed since
+The validation research runner uses validation only. A separate frozen-plan runner
+evaluates saved classifiers and regressors on final TEST without fitting or selecting
+models. See [Regression and final evaluation](final_evaluation.md).
+
+The original demonstration TEST partition stayed sealed after
 splitting, but the short capture was examined during earlier feature work, so it
 should not be described as a pristine statistical holdout.
 

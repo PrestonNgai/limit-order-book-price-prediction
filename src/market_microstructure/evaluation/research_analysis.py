@@ -86,7 +86,7 @@ def cluster_interval(values, sessions, *, minimum_sessions=10, repeats=2000, see
     }
 
 
-def align_predictions(predictions, joined, horizon):
+def align_predictions(predictions, joined, horizon, *, split="validation"):
     """Identity check precedes any regime, return or session aggregation."""
     ids = joined["row_id"].to_numpy()
     wanted = predictions["row_id"].to_numpy()
@@ -108,6 +108,6 @@ def align_predictions(predictions, joined, horizon):
     for left, right in pairs:
         if not np.array_equal(predictions[left].to_numpy(), result[right].to_numpy()):
             raise ValueError("prediction identity/target/return mismatch")
-    if set(predictions["split"].to_pylist()) - {"validation"}:
-        raise ValueError("research requires validation predictions")
+    if split not in ("validation", "test") or set(predictions["split"].to_pylist()) - {split}:
+        raise ValueError(f"research requires {split} predictions")
     return result

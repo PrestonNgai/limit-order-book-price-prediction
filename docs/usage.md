@@ -71,7 +71,8 @@ python scripts/evaluate.py --run results/tree-500 --dataset data/processed/split
 
 Evaluation defaults to validation. TEST access requires both **--split test** and
 **--allow-test**. Use that only after freezing model, feature, threshold, and
-evaluation choices. The multi-experiment research runner has no TEST option.
+evaluation choices. The validation research runner has no TEST option. A separate
+frozen-plan workflow below handles the final multi-model TEST comparison.
 
 ## Run the comparisons
 
@@ -97,6 +98,38 @@ Empty validation combinations are recorded as unavailable. A failed run retains 
 _INCOMPLETE marker and failure.json; use a fresh destination after fixing the cause.
 Statistics are deterministic within the tested environment, but timing and timestamps
 will differ. Cross-version model results may also change.
+
+## Secondary return regression
+
+Train one model, or compare zero-return, ridge, and XGBoost regressors at all horizons:
+
+~~~bash
+python scripts/regression.py train --dataset data/processed/splits --model ridge --horizon-ms 500 --output results/ridge-500
+python scripts/regression.py compare --dataset data/processed/splits --output results/return-comparison
+~~~
+
+Use **--horizons-ms 100 500 1000 5000** to declare horizons explicitly. Settings are in
+configs/regression.yaml. Outputs include validation metrics, saved runs, and error
+figures. Empty combinations remain unavailable.
+
+## Freeze and evaluate final TEST
+
+Finish validation comparisons and freeze all choices first. The example includes
+one regression run; supply multiple paths to include the full regression grid:
+
+~~~bash
+python scripts/final_test.py freeze --research results/comparison --dataset data/processed/splits --regression-runs results/return-comparison/runs/ridge_500ms --output results/final-plan
+python scripts/final_test.py evaluate --plan results/final-plan --output results/final-test --allow-test
+~~~
+
+Omit **--regression-runs** for classification alone. The plan freezes every completed
+classification run and the supplied regression runs. It verifies package source and
+artifact hashes before TEST access. Each plan permits one attempt, including a failed
+attempt. Final outputs include research.json, TEST predictions and metrics, and
+PNG/SVG figures. Models and thresholds are never fitted on TEST.
+
+See [Regression and final evaluation](final_evaluation.md) for metric definitions,
+access guards, timing scope, and limitations.
 
 ## Configuration notes
 

@@ -9,7 +9,9 @@ import numpy as np
 from market_microstructure.models.experiments import read_json
 
 
-def render_research(destination, summary, paths, config):
+def render_research(
+    destination, summary, paths, config, *, split="validation", importance_root=None
+):
     output = destination / "figures"
     output.mkdir()
     records = summary["records"]
@@ -24,7 +26,12 @@ def render_research(destination, summary, paths, config):
     )
 
     def save(fig, name, title):
-        fig.suptitle(title + "\nExploratory validation | TEST sealed", fontsize=13)
+        scope = (
+            "Exploratory validation | TEST sealed"
+            if split == "validation"
+            else "Frozen models | Final TEST evaluation"
+        )
+        fig.suptitle(title + "\n" + scope, fontsize=13)
         for extension in ("png", "svg"):
             fig.savefig(
                 output / f"{name}.{extension}",
@@ -38,7 +45,7 @@ def render_research(destination, summary, paths, config):
 
     fig, axes = plt.subplots(4, 1, figsize=(11, 10), layout="constrained", sharex=True)
     origin = min(t["timestamp_ns"][0].as_py() for t in paths.values() if t.num_rows)
-    for split, table in paths.items():
+    for partition, table in paths.items():
         keys = list(
             zip(
                 *[
@@ -65,25 +72,25 @@ def render_research(destination, summary, paths, config):
                         axes[i].plot(
                             times[start:stop],
                             table[field].to_numpy()[start:stop],
-                            label=split if start == 0 else None,
+                            label=partition if start == 0 else None,
                         )
                     start = stop
             axes[i].set_ylabel(label)
             axes[i].grid(alpha=0.2)
     axes[0].legend()
-    axes[-1].set_xlabel("Seconds since first TRAIN observation")
+    axes[-1].set_xlabel("Seconds since first plotted observation")
     save(fig, "market_paths", "Book state and microprice displacement")
 
     horizons = config["horizons_ms"]
     fig, axes = plt.subplots(1, 2, figsize=(11, 4), layout="constrained")
-    for ax, split in zip(axes, ("train", "validation"), strict=True):
-        data = np.array([summary["class_distribution"][f"{h}ms"][split] for h in horizons])
+    for ax, partition in zip(axes, ("train", split), strict=True):
+        data = np.array([summary["class_distribution"][f"{h}ms"][partition] for h in horizons])
         bottom = np.zeros(len(horizons))
         for i, name in enumerate(("DOWN", "STABLE", "UP")):
             ax.bar(np.arange(len(horizons)), data[:, i], bottom=bottom, label=name)
             bottom += data[:, i]
         ax.set_xticks(np.arange(len(horizons)), [str(h) for h in horizons])
-        ax.set(title=split.upper(), xlabel="Horizon (ms)", ylabel="Purged target count")
+        ax.set(title=partition.upper(), xlabel="Horizon (ms)", ylabel="Purged target count")
         ax.legend()
     save(fig, "class_distribution", "Target availability and class balance")
 
@@ -172,13 +179,18 @@ def render_research(destination, summary, paths, config):
         ax.set(
             title=model,
             xlabel="Cumulative features: book + OBI + flow + trades + remainder",
-            ylabel="Validation score",
+            ylabel=f"{split.capitalize()} score",
             ylim=(0, 1),
         )
         ax.legend()
     save(fig, "ablations", f"Predeclared feature ablations at {focus} ms")
 
-    importance = destination / "runs" / f"xgboost_{focus}ms_all" / "feature_importance.json"
+    importance = (
+        (importance_root or destination)
+        / "runs"
+        / f"xgboost_{focus}ms_all"
+        / "feature_importance.json"
+    )
     fig, ax = plt.subplots(figsize=(10, 6), layout="constrained")
     if importance.exists():
         rows = sorted(read_json(importance)["rows"], key=lambda x: x["normalized_total_gain"])[-12:]

@@ -117,11 +117,11 @@ def checked_table(dataset, manifest, name, limit):
     return pq.read_table(path)
 
 
-def analyze_run(run, joined, cutoffs, config):
+def analyze_run(run, joined, cutoffs, config, *, split="validation", predictions_path=None):
     frozen, manifest = load_run(run)
     del frozen
-    table = pq.read_table(run / "validation/predictions.parquet")
-    raw = align_predictions(table, joined, manifest["horizon_ms"])
+    table = pq.read_table(predictions_path or run / f"{split}/predictions.parquet")
+    raw = align_predictions(table, joined, manifest["horizon_ms"], split=split)
     y, pred, probabilities = arrays(table)
     metrics = classification_metrics(y, pred, probabilities)
     sessions = np.array(

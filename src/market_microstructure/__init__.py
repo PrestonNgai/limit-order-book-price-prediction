@@ -1,3 +1,3 @@
 """Short-horizon market-microstructure research components."""
 
-__version__ = "0.10.1"
+__version__ = "0.11.0"
