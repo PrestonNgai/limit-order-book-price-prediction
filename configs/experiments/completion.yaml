@@ -1,0 +1,199 @@
+schema_version: 1
+dataset_manifest_sha256: null
+horizons_ms:
+- 100
+- 500
+- 1000
+- 5000
+models:
+- majority
+- imbalance
+- logistic
+- xgboost
+- mlp
+- gru
+- sequence_mlp
+ablation_horizons_ms:
+- 500
+feature_sets:
+  book:
+  - f_midprice
+  - f_spread
+  - f_relative_spread
+  - f_bid_depth_1
+  - f_ask_depth_1
+  book_imbalance:
+  - f_midprice
+  - f_spread
+  - f_relative_spread
+  - f_bid_depth_1
+  - f_ask_depth_1
+  - f_obi_1
+  - f_obi_3
+  - f_obi_5
+  - f_obi_10
+  book_imbalance_flow:
+  - f_midprice
+  - f_spread
+  - f_relative_spread
+  - f_bid_depth_1
+  - f_ask_depth_1
+  - f_obi_1
+  - f_obi_3
+  - f_obi_5
+  - f_obi_10
+  - f_bid_added_100ms
+  - f_bid_removed_100ms
+  - f_ask_added_100ms
+  - f_ask_removed_100ms
+  - f_depth_flow_imbalance_100ms
+  - f_bid_added_500ms
+  - f_bid_removed_500ms
+  - f_ask_added_500ms
+  - f_ask_removed_500ms
+  - f_depth_flow_imbalance_500ms
+  - f_bid_added_1000ms
+  - f_bid_removed_1000ms
+  - f_ask_added_1000ms
+  - f_ask_removed_1000ms
+  - f_depth_flow_imbalance_1000ms
+  - f_bid_added_5000ms
+  - f_bid_removed_5000ms
+  - f_ask_added_5000ms
+  - f_ask_removed_5000ms
+  - f_depth_flow_imbalance_5000ms
+  book_imbalance_flow_trades:
+  - f_midprice
+  - f_spread
+  - f_relative_spread
+  - f_bid_depth_1
+  - f_ask_depth_1
+  - f_obi_1
+  - f_obi_3
+  - f_obi_5
+  - f_obi_10
+  - f_bid_added_100ms
+  - f_bid_removed_100ms
+  - f_ask_added_100ms
+  - f_ask_removed_100ms
+  - f_depth_flow_imbalance_100ms
+  - f_bid_added_500ms
+  - f_bid_removed_500ms
+  - f_ask_added_500ms
+  - f_ask_removed_500ms
+  - f_depth_flow_imbalance_500ms
+  - f_bid_added_1000ms
+  - f_bid_removed_1000ms
+  - f_ask_added_1000ms
+  - f_ask_removed_1000ms
+  - f_depth_flow_imbalance_1000ms
+  - f_bid_added_5000ms
+  - f_bid_removed_5000ms
+  - f_ask_added_5000ms
+  - f_ask_removed_5000ms
+  - f_depth_flow_imbalance_5000ms
+  - f_trade_count_100ms
+  - f_trade_volume_100ms
+  - f_trade_buy_volume_100ms
+  - f_trade_sell_volume_100ms
+  - f_trade_imbalance_100ms
+  - f_trade_mean_size_100ms
+  - f_trade_vwap_100ms
+  - f_trade_vwap_minus_mid_100ms
+  - f_trade_count_500ms
+  - f_trade_volume_500ms
+  - f_trade_buy_volume_500ms
+  - f_trade_sell_volume_500ms
+  - f_trade_imbalance_500ms
+  - f_trade_mean_size_500ms
+  - f_trade_vwap_500ms
+  - f_trade_vwap_minus_mid_500ms
+  - f_trade_count_1000ms
+  - f_trade_volume_1000ms
+  - f_trade_buy_volume_1000ms
+  - f_trade_sell_volume_1000ms
+  - f_trade_imbalance_1000ms
+  - f_trade_mean_size_1000ms
+  - f_trade_vwap_1000ms
+  - f_trade_vwap_minus_mid_1000ms
+  - f_trade_count_5000ms
+  - f_trade_volume_5000ms
+  - f_trade_buy_volume_5000ms
+  - f_trade_sell_volume_5000ms
+  - f_trade_imbalance_5000ms
+  - f_trade_mean_size_5000ms
+  - f_trade_vwap_5000ms
+  - f_trade_vwap_minus_mid_5000ms
+confidence_thresholds:
+- 0.0
+- 0.5
+- 0.6
+- 0.7
+- 0.8
+- 0.9
+minimum_sessions: 10
+bootstrap_repeats: 2000
+seed: 42
+max_analysis_rows: 250000
+model_parameters:
+  xgboost:
+    model: xgboost
+    horizon_ms: 500
+    seed: 42
+    rounds: 200
+    max_depth: 3
+    tree_learning_rate: 0.05
+    patience: 15
+    min_delta: 0.0
+    explain_rows: 24
+  mlp:
+    model: mlp
+    horizon_ms: 500
+    seed: 42
+    hidden_sizes:
+    - 64
+    - 32
+    dropout: 0.1
+    epochs: 40
+    train_batch_size: 128
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    patience: 8
+    min_delta: 0.0
+    timing_warmup: 5
+    timing_repeats: 30
+    timing_batch_size: 64
+  gru:
+    model: gru
+    horizon_ms: 500
+    seed: 42
+    sequence_length: 20
+    gru_hidden_size: 32
+    gru_layers: 1
+    hidden_sizes:
+    - 64
+    - 32
+    dropout: 0.1
+    epochs: 40
+    patience: 8
+    train_batch_size: 128
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    gradient_clip: 1.0
+  sequence_mlp:
+    model: sequence_mlp
+    horizon_ms: 500
+    seed: 42
+    sequence_length: 20
+    gru_hidden_size: 32
+    gru_layers: 1
+    hidden_sizes:
+    - 64
+    - 32
+    dropout: 0.1
+    epochs: 40
+    patience: 8
+    train_batch_size: 128
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    gradient_clip: 1.0

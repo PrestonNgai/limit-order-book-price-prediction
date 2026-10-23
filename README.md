@@ -16,8 +16,10 @@ feature engineering, chronological evaluation, and model comparisons.
 - DOWN / STABLE / UP targets at 100 ms, 500 ms, 1 second, and 5 seconds.
 - Chronological splits, endpoint purging, TRAIN-only preprocessing, and guarded TEST access.
 - Majority, imbalance-sign, logistic regression, XGBoost, MLP, and GRU models.
+- Future-return regression with zero-return, ridge, and XGBoost models.
 - Horizon comparisons, feature ablations, calibration, regime analysis, and signed
   future mid-price moves at fixed confidence thresholds.
+- A frozen-plan final TEST workflow with model/source hashes and explicit access.
 
 The implementation emphasizes traceable data and fair comparisons. It does not
 submit orders or model fills.
@@ -41,7 +43,7 @@ python -m ruff check .
 python -m ruff format --check .
 ~~~
 
-The book demo and tests are offline. Tests build synthetic data in temporary
+The book demo and 420 tests run offline. Tests build synthetic data in temporary
 directories; they do not need the original capture or trained checkpoints.
 
 For a full collection-to-evaluation example, see [Running experiments](docs/usage.md).
@@ -77,30 +79,37 @@ rewriting the research pipeline. Data collection runs separately from model trai
 | docs | Methods, usage, and a small captured-data example |
 
 See [Methods](docs/methods.md) for label definitions, leakage controls, model settings,
-and evaluation conventions.
+and evaluation conventions. [Final evaluation](docs/final_evaluation.md) describes
+regression and the separate frozen-model TEST workflow.
 
-## Example results
+## Same-day experiment
 
-The saved experiment used one roughly 20-second BTC-USD capture from September 25,
-2026. At 500 ms it had 131 TRAIN targets and only 24 validation targets:
+Six three-minute BTC-USD sessions, separated by one-minute gaps, produced 23,608
+messages and 10,756 sampled observations. Sessions 1-4 were assigned to TRAIN,
+session 5 to validation, and session 6 to TEST before collection. Recording took
+place on October 22, 2026 in Chicago time (October 23 UTC).
 
-| Model | Validation accuracy | Log loss |
-| --- | ---: | ---: |
-| Majority | 0.5833 | 0.9452 |
-| Imbalance sign | 0.4167 | 0.7957 |
-| Logistic regression | 0.5833 | 1.9542 |
-| XGBoost | 0.5000 | 1.0690 |
-| MLP | 0.5833 | 1.0901 |
+The frozen grid completed 36 classification and 12 regression runs. At 500 ms,
+the snapshot models use the same 1,788 final TEST targets:
 
-Adding features did not produce a consistent accuracy improvement in this sample.
-The GRU comparison uses a smaller, separately matched set of sequence targets.
+| Model | TEST accuracy | Balanced accuracy | Log loss |
+| --- | ---: | ---: | ---: |
+| Majority | 0.7092 | 0.3333 | 0.8176 |
+| Imbalance sign | 0.2092 | 0.4715 | 0.7886 |
+| Logistic regression | 0.7355 | 0.4186 | 0.7904 |
+| XGBoost | 0.6924 | 0.4519 | 0.7964 |
+| MLP | 0.7232 | 0.3822 | 1.0145 |
 
-![Feature ablations at 500 ms](docs/figures/ablations.png)
+Metrics favor different models. Neural models and larger feature sets do not show
+a consistent advantage. Regression improves on the zero-return baseline's RMSE
+slightly at short horizons, while both learned regressors are worse at 5 seconds.
 
-These results demonstrate the pipeline, not a reliable trading signal. Validation
-also selected learned checkpoints, and there are too few observations for a useful
-generalization claim. [Results and limitations](docs/results.md) explains the horizon
-comparisons, class imbalance, sequence comparison, and missing 5-second evaluation.
+![Final TEST performance versus horizon](docs/figures/signal_decay.png)
+
+[Results](docs/results.md) discusses class imbalance, sequence controls, ablations,
+regimes, and economic diagnostics. A [numerical experiment record](docs/experiment.json)
+retains metrics and hashes. This is one reserved three-minute TEST interval, with
+overlapping targets, not evidence of performance across trading days or profitability.
 
 ## Repository scope
 
@@ -108,9 +117,8 @@ This repository contains the implementation, tests, configurations, and selected
 results. Raw captures, processed datasets, checkpoints, virtual environments, and
 run archives are omitted. New data and results are ignored by Git.
 
-The documentation is maintained separately from experiment code. Experiments write
-JSON, Parquet, model checkpoints, and figures; they do not write Markdown documents.
-
-Further work would need longer, separated recording periods and a frozen final
-evaluation. A fill-aware execution simulator is not implemented. Python timings
-measure local inference work, not exchange-to-order latency.
+Further empirical work needs separated market periods and a fresh holdout after
+changes motivated by these results. A fill-aware execution simulator remains optional
+and is not implemented. Python timings measure local inference work, not
+exchange-to-order latency. Crypto spot and a public WebSocket feed also differ from
+colocated futures/options market data; receive timestamps include network jitter.
