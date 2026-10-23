@@ -1,0 +1,9 @@
+model: xgboost
+horizon_ms: 500
+seed: 42
+rounds: 200
+max_depth: 3
+tree_learning_rate: 0.05
+patience: 15
+min_delta: 0.0
+explain_rows: 24

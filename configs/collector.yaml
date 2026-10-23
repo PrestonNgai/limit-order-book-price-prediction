@@ -1,0 +1,18 @@
+# Paths here are relative to this configuration file.
+symbol: BTC-USD
+output_dir: ../data/raw
+rotate_seconds: 3600
+max_file_bytes: 134217728
+fsync_seconds: 1.0
+compress: false
+max_message_bytes: 16777216
+max_queue: 32
+open_timeout: 10.0
+idle_timeout: 15.0
+heartbeat_timeout: 10.0
+bootstrap_timeout: 15.0
+backoff_initial: 1.0
+backoff_max: 30.0
+report_seconds: 10.0
+max_reconnects: null
+fetch_product_metadata: true

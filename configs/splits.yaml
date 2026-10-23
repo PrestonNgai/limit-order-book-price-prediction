@@ -1,0 +1,10 @@
+# Keep whole chronological sessions when at least three exist; otherwise use time.
+mode: auto
+train_fraction: "0.70"
+validation_fraction: "0.15"
+train_end_ns: null
+validation_end_ns: null
+sequence_length: 20
+batch_rows: 4096
+# Exact TRAIN-only medians for later regime analysis.
+regime_quantiles: [0.5]

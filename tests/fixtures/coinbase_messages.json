@@ -1,0 +1,97 @@
+{
+  "subscriptions": {
+    "type": "subscriptions",
+    "channels": [
+      {
+        "name": "level2_batch",
+        "product_ids": [
+          "BTC-USD"
+        ]
+      },
+      {
+        "name": "matches",
+        "product_ids": [
+          "BTC-USD"
+        ]
+      },
+      {
+        "name": "heartbeat",
+        "product_ids": [
+          "BTC-USD"
+        ]
+      }
+    ]
+  },
+  "snapshot": {
+    "type": "snapshot",
+    "product_id": "BTC-USD",
+    "bids": [
+      [
+        "100.00",
+        "2.5"
+      ],
+      [
+        "99.99",
+        "4"
+      ]
+    ],
+    "asks": [
+      [
+        "100.02",
+        "3"
+      ],
+      [
+        "100.03",
+        "5"
+      ]
+    ]
+  },
+  "update": {
+    "type": "l2update",
+    "product_id": "BTC-USD",
+    "time": "2026-09-24T12:00:00.123456789Z",
+    "changes": [
+      [
+        "buy",
+        "100.01",
+        "1.25"
+      ],
+      [
+        "sell",
+        "100.02",
+        "2"
+      ]
+    ]
+  },
+  "reference": {
+    "type": "last_match",
+    "product_id": "BTC-USD",
+    "time": "2026-09-24T11:59:59Z",
+    "sequence": 50,
+    "trade_id": 10,
+    "price": "100.01",
+    "size": "0.5",
+    "side": "sell"
+  },
+  "match": {
+    "type": "match",
+    "product_id": "BTC-USD",
+    "time": "2026-09-24T12:00:00.13Z",
+    "sequence": 80,
+    "trade_id": 11,
+    "price": "100.02",
+    "size": "0.25",
+    "side": "sell"
+  },
+  "heartbeat": {
+    "type": "heartbeat",
+    "product_id": "BTC-USD",
+    "time": "2026-09-24T12:00:01Z",
+    "sequence": 100,
+    "last_trade_id": 11
+  },
+  "error": {
+    "type": "error",
+    "message": "synthetic subscription rejection"
+  }
+}

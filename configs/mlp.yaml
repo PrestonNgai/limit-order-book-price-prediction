@@ -1,0 +1,14 @@
+model: mlp
+horizon_ms: 500
+seed: 42
+hidden_sizes: [64, 32]
+dropout: 0.1
+epochs: 100
+train_batch_size: 64
+learning_rate: 0.001
+weight_decay: 0.0001
+patience: 10
+min_delta: 0.0
+timing_warmup: 5
+timing_repeats: 30
+timing_batch_size: 64

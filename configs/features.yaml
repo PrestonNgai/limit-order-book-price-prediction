@@ -1,0 +1,10 @@
+# Receive-time trailing windows; intervals must divide feature windows and lags.
+flow_windows_ms: [100, 500, 1000, 5000]
+dynamics_lags_ms: [100, 500, 1000, 2000, 5000]
+horizons_ms: [100, 500, 1000, 5000]
+alignment_tolerance_ms: 0
+# Default: one quoted price tick, with exact ties STABLE.
+epsilon_ticks: "1"
+# Optional fixed relative-return threshold overrides tick mode.
+relative_epsilon: null
+batch_rows: 4096

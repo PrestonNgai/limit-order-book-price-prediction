@@ -1,0 +1,11 @@
+# Paths are relative to this file. A fresh output dataset directory is used per run.
+raw_dir: ../data/raw
+output_dir: ../data/processed
+interval_ms: 100
+depth: 10
+max_staleness_ms: 1000
+batch_rows: 4096
+decimal_precision: 38
+decimal_scale: 18
+compression: zstd
+max_record_bytes: 67108864
