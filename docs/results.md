@@ -1,20 +1,16 @@
 # Same-day research results
 
-This experiment replaces the original 20-second software demonstration. Six new
-BTC-USD sessions were recorded on October 22, 2026 in Chicago time (October 23 UTC).
-Each lasted three minutes, with one-minute gaps: 18 recorded minutes in a 23-minute
-window. The feed delivered 23,608 messages and 10,756 sampled observations.
+Six BTC-USD sessions were recorded on October 22, 2026 in Chicago time (October 23
+UTC): three minutes each, separated by one-minute gaps. The 18 recorded minutes
+contain 23,608 messages and 10,756 sampled observations.
 
-Assignments were declared before collection: four TRAIN, one validation, one TEST.
-Feature rows were 7,170 / 1,793 / 1,793. Label availability reduces target counts by
-horizon; windows cannot span a gap. The one-tick threshold was fixed in advance.
-TRAIN alone supplied preprocessing and regime cutoffs.
+Sessions were assigned before collection: four TRAIN, one validation, one TEST,
+with 7,170 / 1,793 / 1,793 feature rows. Targets require a future observation in the
+same segment, so counts fall with horizon. The class threshold was fixed at one tick.
 
-The neural budget was 40 epochs, patience 8, batch size 128, seed 42. Validation
-selected checkpoints. After 36 classification and 12 regression runs, all models,
-thresholds, source hashes, and data hashes were frozen before TEST access. No models
-were refitted or selected using the following results. The exact
-[classification configuration](../configs/experiments/completion.yaml),
+Neural training used up to 40 epochs, patience 8, batch size 128, and seed 42.
+Validation selected checkpoints; all 36 classification and 12 regression runs were
+frozen before final TEST evaluation. The [classification configuration](../configs/experiments/completion.yaml),
 [regression settings](../configs/regression.yaml), and
 [numerical record](experiment.json) accompany the tables.
 
@@ -33,9 +29,9 @@ horizon, so these average DOWN, STABLE, and UP recall equally.
 | GRU | 0.4220 | 0.3855 | 0.3571 | 0.2887 |
 | Matched MLP | 0.4008 | 0.4049 | 0.3720 | 0.3124 |
 
-Snapshot target counts are 1,792 / 1,788 / 1,783 / 1,743. GRU and matched MLP use
-1,773 / 1,769 / 1,764 / 1,724 targets; compare those two to each other. Their
-20-observation histories stay inside a split and uninterrupted segment.
+Snapshot target counts are 1,792 / 1,788 / 1,783 / 1,743. GRU and its matched MLP
+control share a smaller set of 1,773 / 1,769 / 1,764 / 1,724 targets. GRU inputs need
+20 consecutive observations within one split and uninterrupted segment.
 
 | Horizon | DOWN | STABLE | UP |
 | --- | ---: | ---: | ---: |
@@ -46,16 +42,14 @@ Snapshot target counts are 1,792 / 1,788 / 1,783 / 1,743. GRU and matched MLP us
 
 ![TRAIN and TEST class distributions](figures/class_distribution.png)
 
-Raw accuracy can conceal weak directional recall. At 100 ms, always predicting
-STABLE achieves 88.78% accuracy but 33.33% balanced accuracy. At 500 ms, logistic
-regression reaches 73.55% accuracy versus the majority rule's 70.92%; its balanced
-accuracy is 41.86%, below the imbalance rule's 47.15%. Metrics answer different
-questions, so no model is declared best from one score.
+At 100 ms, always predicting STABLE achieves 88.78% accuracy but 33.33% balanced
+accuracy. At 500 ms, logistic regression reaches 73.55% accuracy versus the majority
+rule's 70.92%; its balanced
+accuracy is 41.86%, below the imbalance rule's 47.15%.
 
 XGBoost's balanced accuracy declines from 51.35% at 100 ms to 30.59% at 5 seconds.
-Other models also tend to lose their advantage at longer horizons. This describes
-this interval; differing label availability and class balance prevent interpreting
-the curves as a clean estimate of a signal's decay rate.
+Most models weaken at longer horizons, though changing class balance and target
+availability also affect these curves.
 
 ![Final TEST horizon comparison](figures/signal_decay.png)
 
@@ -64,14 +58,13 @@ horizon. GRU beats its matched MLP control at 100 ms, but trails it at the other
 three horizons. At 500 ms the GRU has 12,867 parameters versus 8,579 for the matched
 MLP and takes about 7.16 seconds to fit versus 2.39 seconds on this machine. Its
 better log loss (0.7815 versus 1.0310) does not translate into better balanced
-accuracy. These observations do not establish a consistent benefit from temporal
-complexity. Timing scopes are separate from trading latency.
+accuracy. The extra temporal complexity offers no consistent gain here.
 
 ## Feature ablations at 500 ms
 
-All ablations within a model use the same 7,145 TRAIN, 1,788 validation, and 1,788
-TEST targets, with the same optimization budget. Checkpoints are selected separately.
-Values below are final TEST balanced accuracy.
+Each model uses the same 7,145 TRAIN, 1,788 validation, and 1,788 TEST targets across
+ablations, with a fixed training budget and separate checkpoint selection. Values
+are final TEST balanced accuracy.
 
 | Inputs | Features | XGBoost | MLP |
 | --- | ---: | ---: | ---: |
@@ -88,9 +81,8 @@ added, even though balanced accuracy falls slightly. The full tree has log loss
 0.7964, so its probability estimates improve more than its equal-class recall.
 
 L1/3/5/10 imbalance features are added together. This does not isolate the benefit
-of deeper imbalance beyond L1. Likewise, the final step adds microprice, depth, and
-dynamics jointly. Those narrower questions need separately declared ablations and
-a new holdout, rather than additional tuning on this TEST period.
+of deeper imbalance beyond L1. The final step also combines microprice, depth, and
+dynamics, so their individual contributions remain unresolved.
 
 ![Feature ablations on final TEST](figures/ablations.png)
 
@@ -107,8 +99,8 @@ Final TEST RMSE, in basis points:
 Ridge and XGBoost reduce 500 ms MSE by about 2.98% and 2.70% relative to predicting
 zero. Both are worse at 5 seconds. Predicting zero has lower MAE than either learned
 regressor at every horizon, reflecting the large mass of unchanged prices and the
-different penalties of MAE and RMSE. The numerical record retains both metrics,
-R-squared, correlation, and directional coverage; negative skill is retained.
+different penalties of MAE and RMSE. Other regression metrics are in the numerical
+record.
 
 ![Return regression errors](figures/regression.png)
 
@@ -117,38 +109,30 @@ R-squared, correlation, and directional coverage; negative skill is retained.
 Using TRAIN median cutoffs, the 500 ms tree's balanced accuracy is 0.3664 in the
 lower trailing-volatility bin (975 targets) and 0.4862 in the upper bin (803 targets).
 It is 0.4201 versus 0.4809 in lower/higher trade-intensity bins (868 / 907 targets).
-This suggests condition dependence within the reserved interval, not a stable
-regime effect. Wide-spread support is only 124 targets. Unknown warm-up bins contain
-10-13 targets and should not be interpreted from their high scores.
+These differences warrant a check on other periods. Wide-spread support is only
+124 targets, and unknown warm-up bins contain just 10-13.
 
-Confidence thresholds were fixed before evaluation. At 500 ms and a 0.7 threshold,
-logistic regression produces 42 directional signals with a mean signed future mid
-move of 0.1081 bps; XGBoost produces 11 with 0.1854 bps. These small, overlapping
-subsets have no independent-session confidence interval. They are price-movement
-diagnostics, not executable trades. Fees, spread crossing, queue position, fills,
-latency, adverse selection during execution, and inventory risk are not modeled.
+At the predeclared 0.7 confidence threshold and 500 ms horizon, logistic regression
+produces 42 directional signals with a mean signed future mid move of 0.1081 bps;
+XGBoost produces 11 with 0.1854 bps. These are small, overlapping subsets. The moves
+exclude spread crossing, fees, fills, queue position, latency, and inventory costs.
 
 ## Checks, provenance, and remaining limits
 
 - 420 offline tests passed; Ruff lint/format checks and a wheel build passed.
-- All 48 declared runs completed; no horizon/model combinations were unavailable.
-- Ten final PNG/SVG figure pairs were rendered and visually checked; four are kept
-  here. Full local artifacts retain predictions, checkpoints, metrics, and figures.
+- All 48 declared runs completed.
+- Ten final PNG/SVG figure pairs were rendered and visually checked; four are kept here.
 - An independent audit matched 63,894 classification and 21,318 regression prediction
   rows to labels and checked confusion counts, accuracy, log loss, confidence moves,
-  regression errors, and artifact hashes. Source remained unchanged through TEST.
+  regression errors, and artifact hashes.
 - The split manifest SHA256 is
   fa1e1ffa257dd6ddfa20a697024f2cdad5bb44644620cf2f10dc86002e37a242.
   Source commit and further hashes are in the numerical record.
 
-This completes an end-to-end same-day prediction experiment, not a generalization
-study across market periods. TEST is one three-minute session; overlapping labels
-are dependent, and the sessions are not independent market days. The configured
-ten-session bootstrap therefore remains unavailable. No significance or profitability
-claim is made. Crypto spot, public WebSocket delivery, and local receive-time sampling
-also limit transfer to colocated futures or options data.
+TEST covers one three-minute session with dependent, overlapping labels. It cannot
+support the configured ten-session bootstrap or establish performance across market
+days. The economic diagnostics also lack an execution model, so they say nothing
+about realized profitability.
 
-After using these outcomes to change features or models, reserve new separated
-periods for the next final evaluation. Broader data collection and specifically
-isolated depth ablations remain empirical follow-up work. The optional fill-aware
-market-making simulator has not been implemented.
+The next experiment needs separated market periods, isolated depth ablations, and
+a fresh holdout. A fill-aware market-making simulator remains optional.

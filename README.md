@@ -3,26 +3,20 @@
 A Python research project on short-horizon BTC-USD mid-price prediction using
 Coinbase order-book updates and trades.
 
-The question is whether book imbalance, recent order flow, and trade activity add
-useful information beyond simple baselines, and whether that information changes
-with the prediction horizon. The project implements collection, reconstruction,
-feature engineering, chronological evaluation, and model comparisons.
+I compare simple baselines with tree and neural models to study whether book
+imbalance, order flow, and trades help predict price direction, and how that changes
+with the prediction horizon.
 
 ## What is implemented
 
-- Public WebSocket recorder with raw message storage, reconnects, and file rotation.
-- L2 book with exact decimal prices, atomic updates, and snapshot recovery.
-- Receive-time sampling at 100 ms and 99 book, flow, trade, and lagged features.
-- DOWN / STABLE / UP targets at 100 ms, 500 ms, 1 second, and 5 seconds.
-- Chronological splits, endpoint purging, TRAIN-only preprocessing, and guarded TEST access.
-- Majority, imbalance-sign, logistic regression, XGBoost, MLP, and GRU models.
-- Future-return regression with zero-return, ridge, and XGBoost models.
-- Horizon comparisons, feature ablations, calibration, regime analysis, and signed
-  future mid-price moves at fixed confidence thresholds.
-- A frozen-plan final TEST workflow with model/source hashes and explicit access.
-
-The implementation emphasizes traceable data and fair comparisons. It does not
-submit orders or model fills.
+- Coinbase recorder with reconnects, file rotation, and raw message storage.
+- L2 reconstruction with decimal prices, atomic updates, and snapshot recovery;
+  100 ms sampling and 99 microstructure features.
+- Three-class price-direction and return targets at 100 ms, 500 ms, 1 s, and 5 s.
+- Majority, imbalance, logistic regression, XGBoost, MLP, and GRU classifiers;
+  zero-return, ridge, and XGBoost regressors.
+- Chronological evaluation with TRAIN-only preprocessing, feature ablations,
+  calibration, regime analysis, and a frozen-model final TEST workflow.
 
 ## Start here
 
@@ -43,12 +37,9 @@ python -m ruff check .
 python -m ruff format --check .
 ~~~
 
-The book demo and 420 tests run offline. Tests build synthetic data in temporary
-directories; they do not need the original capture or trained checkpoints.
+The book demo and 420 tests run offline using synthetic fixtures.
 
 For a full collection-to-evaluation example, see [Running experiments](docs/usage.md).
-The training dependencies include PyTorch and XGBoost, so the environment is larger
-than a recorder-only installation.
 
 ## Design
 
@@ -62,9 +53,8 @@ WebSocket -> raw JSONL -> L2 reconstruction -> 100 ms observations
                               TRAIN fit -> validation comparisons
 ~~~
 
-The source adapter owns exchange message semantics. The book, processing code, and
-models consume normalized events or tables, so another source can be added without
-rewriting the research pipeline. Data collection runs separately from model training.
+The source adapter converts exchange messages into normalized events. Other feeds
+can use the same book and research code. Collection runs separately from training.
 
 | Directory | Purpose |
 | --- | --- |
@@ -76,7 +66,7 @@ rewriting the research pipeline. Data collection runs separately from model trai
 | scripts | Command-line entry points |
 | configs | Experiment and processing settings |
 | tests | Reconstruction, causality, alignment, model, and corruption checks |
-| docs | Methods, usage, and a small captured-data example |
+| docs | Methods, usage, and experiment results |
 
 See [Methods](docs/methods.md) for label definitions, leakage controls, model settings,
 and evaluation conventions. [Final evaluation](docs/final_evaluation.md) describes
@@ -100,16 +90,14 @@ the snapshot models use the same 1,788 final TEST targets:
 | XGBoost | 0.6924 | 0.4519 | 0.7964 |
 | MLP | 0.7232 | 0.3822 | 1.0145 |
 
-Metrics favor different models. Neural models and larger feature sets do not show
-a consistent advantage. Regression improves on the zero-return baseline's RMSE
-slightly at short horizons, while both learned regressors are worse at 5 seconds.
+Neural models and larger feature sets show no consistent advantage. Learned
+regressors slightly improve RMSE at short horizons but lose to zero return at 5 s.
 
 ![Final TEST performance versus horizon](docs/figures/signal_decay.png)
 
-[Results](docs/results.md) discusses class imbalance, sequence controls, ablations,
-regimes, and economic diagnostics. A [numerical experiment record](docs/experiment.json)
-retains metrics and hashes. This is one reserved three-minute TEST interval, with
-overlapping targets, not evidence of performance across trading days or profitability.
+See [Results](docs/results.md) for the analysis and limitations, and the
+[numerical record](docs/experiment.json) for metrics and hashes. TEST covers one
+three-minute interval, so the findings need checking across other market periods.
 
 ## Repository scope
 
@@ -117,8 +105,6 @@ This repository contains the implementation, tests, configurations, and selected
 results. Raw captures, processed datasets, checkpoints, virtual environments, and
 run archives are omitted. New data and results are ignored by Git.
 
-Further empirical work needs separated market periods and a fresh holdout after
-changes motivated by these results. A fill-aware execution simulator remains optional
-and is not implemented. Python timings measure local inference work, not
-exchange-to-order latency. Crypto spot and a public WebSocket feed also differ from
-colocated futures/options market data; receive timestamps include network jitter.
+The project evaluates predictions; it does not submit orders or model fills.
+Python inference timings exclude network and exchange latency. Public crypto spot
+data also limits how directly the results transfer to futures or options markets.
