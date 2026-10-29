@@ -91,6 +91,18 @@ Empty combinations are marked unavailable. Failed runs retain `_INCOMPLETE` and
 `failure.json`; retry in a new directory after fixing the cause. Statistical results
 are reproducible in the tested environment; timings and cross-version results can vary.
 
+## Tune a classifier
+
+~~~bash
+python scripts/tune.py --dataset data/processed/splits --config configs/tuning.yaml --output results/tuning
+python scripts/train.py --dataset data/processed/splits --config results/tuning/selected_config.json --output results/tuned-model
+~~~
+
+Selection uses only TRAIN and requires at least four collection sessions. Each fold
+refits preprocessing and purges boundary-crossing labels. Keep later periods reserved
+for the [final evaluation](final_evaluation.md). See [Tuning](tuning.md) for the fixed
+grid, class costs, and feature sets.
+
 ## Secondary return regression
 
 Train one model, or compare zero-return, ridge, and XGBoost regressors at all horizons:

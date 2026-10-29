@@ -37,7 +37,7 @@ python -m ruff check .
 python -m ruff format --check .
 ~~~
 
-The book demo and 420 tests run offline using synthetic fixtures.
+The book demo and 438 tests run offline using synthetic fixtures.
 
 For a full collection-to-evaluation example, see [Running experiments](docs/usage.md).
 
@@ -71,6 +71,13 @@ can use the same book and research code. Collection runs separately from trainin
 See [Methods](docs/methods.md) for label definitions, leakage controls, model settings,
 and evaluation conventions. [Final evaluation](docs/final_evaluation.md) describes
 regression and the separate frozen-model TEST workflow.
+
+## Forward evaluation
+
+A later [walk-forward tuning and forward check](docs/tuning_results.md) evaluates
+40 configurations and a new recording date. The selected logistic model did not
+beat the original XGBoost model. At 500 ms, XGBoost reached 48.42% balanced accuracy
+versus 38.32% for imbalance on 8,965 new TEST targets.
 
 ## Same-day experiment
 

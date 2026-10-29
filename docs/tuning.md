@@ -1,5 +1,8 @@
 # Model tuning
 
+The [forward results](tuning_results.md) report how the selected model performed
+against the original baselines.
+
 The next experiment keeps the original 500 ms target and one-tick threshold. It
 tests whether regularization, class weighting, and removing absolute price levels
 improve transfer to a later recording date.
