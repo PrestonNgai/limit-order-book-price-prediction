@@ -31,7 +31,7 @@ from market_microstructure.processing.split_dataset import iter_model_batches
 from .metrics import classification_metrics
 from .research_analysis import align_predictions, arrays, cluster_interval, confidence_analysis
 
-MODELS = ("majority", "imbalance", "logistic", "xgboost", "mlp", "gru", "sequence_mlp")
+MODELS = ("majority", "imbalance", "logistic", "xgboost", "mlp", "gru", "sequence_mlp", "tuned")
 FIELDS = {
     "schema_version",
     "dataset_manifest_sha256",

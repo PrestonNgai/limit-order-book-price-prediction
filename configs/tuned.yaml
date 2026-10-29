@@ -1,0 +1,7 @@
+model: tuned
+family: logistic
+feature_set: stationary
+class_weight: balanced
+logistic_c: 0.01
+horizon_ms: 500
+seed: 42

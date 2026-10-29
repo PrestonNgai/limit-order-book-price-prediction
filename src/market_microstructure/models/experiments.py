@@ -113,6 +113,10 @@ def row_fingerprint(digest, table, horizon):
 
 
 def train_run(dataset, destination, config):
+    if config.model == "tuned":
+        from .tuned import train_tuned_run
+
+        return train_tuned_run(dataset, destination, config)
     if config.model in ("gru", "sequence_mlp"):
         from .sequence_experiments import train_sequence_run
 
@@ -276,6 +280,10 @@ def train_run(dataset, destination, config):
 def load_run(run):
     run = Path(run)
     manifest = read_json(run / "manifest.json")
+    if manifest.get("kind") == "tuned_run":
+        from .tuned import load_tuned_run
+
+        return load_tuned_run(run)
     if manifest.get("kind") == "sequence_run":
         from .sequence_experiments import load_sequence_run
 

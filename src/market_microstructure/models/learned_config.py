@@ -95,6 +95,10 @@ class LearnedConfig:
 
 
 def config_from_mapping(data):
+    if data.get("model") == "tuned":
+        from .tuned import TunedConfig
+
+        return TunedConfig(**data)
     if data.get("model") in ("gru", "sequence_mlp"):
         from .sequence_config import SequenceConfig
 

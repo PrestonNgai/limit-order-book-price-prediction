@@ -21,7 +21,16 @@ def main():
     )
     parser.add_argument(
         "--model",
-        choices=["majority", "imbalance", "logistic", "xgboost", "mlp", "gru", "sequence_mlp"],
+        choices=[
+            "majority",
+            "imbalance",
+            "logistic",
+            "xgboost",
+            "mlp",
+            "gru",
+            "sequence_mlp",
+            "tuned",
+        ],
     )
     parser.add_argument("--horizon-ms", type=int)
     parser.add_argument("--seed", type=int)
@@ -34,7 +43,7 @@ def main():
                 / "configs"
                 / (
                     f"{args.model}.yaml"
-                    if args.model in ("xgboost", "mlp", "gru", "sequence_mlp")
+                    if args.model in ("xgboost", "mlp", "gru", "sequence_mlp", "tuned")
                     else "baselines.yaml"
                 )
             ),

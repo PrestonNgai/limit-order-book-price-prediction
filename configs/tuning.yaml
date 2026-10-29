@@ -1,0 +1,10 @@
+horizon_ms: 500
+seed: 42
+feature_sets: [l1, deep, compact, stationary]
+class_weights: [null, balanced]
+logistic_c: [0.01, 0.1, 1.0]
+tree_depths: [2, 3]
+rounds: 200
+patience: 15
+max_candidates: 40
+max_rows: 250000
