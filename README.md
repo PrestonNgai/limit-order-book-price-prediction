@@ -105,13 +105,3 @@ regressors slightly improve RMSE at short horizons but lose to zero return at 5 
 See [Results](docs/results.md) for the analysis and limitations, and the
 [numerical record](docs/experiment.json) for metrics and hashes. TEST covers one
 three-minute interval, so the findings need checking across other market periods.
-
-## Repository scope
-
-This repository contains the implementation, tests, configurations, and selected
-results. Raw captures, processed datasets, checkpoints, virtual environments, and
-run archives are omitted. New data and results are ignored by Git.
-
-The project evaluates predictions; it does not submit orders or model fills.
-Python inference timings exclude network and exchange latency. Public crypto spot
-data also limits how directly the results transfer to futures or options markets.
